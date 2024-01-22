@@ -29,7 +29,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [env('HOST_URL')]
 
 # current path for client side rendering
 CLIENT_PATH='http://localhost:3000/'
@@ -188,7 +188,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    env('DEV_FRONT_URL'),
+    env('FRONT_URL'),
 ]
 
 # Email Configuration
