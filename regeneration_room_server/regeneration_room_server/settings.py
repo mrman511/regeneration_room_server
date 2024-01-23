@@ -29,7 +29,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [env('HOST_URL')]
+ALLOWED_HOSTS = [env('HOST_URL'), env('DEV_FRONT_URL')]
 
 # current path for client side rendering
 CLIENT_PATH='http://localhost:3000/'
