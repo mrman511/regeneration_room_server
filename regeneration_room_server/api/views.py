@@ -83,8 +83,8 @@ def reset_password(request, encoded_pk=None, token=None):
     encoded_pk = urlsafe_base64_encode(force_bytes(user.pk))
     token = PasswordResetTokenGenerator().make_token(user)
     # create password reset-link URL
-    url = settings.CLIENT_PATH + f'login/password_reset?pk=${ encoded_pk }&token={token}'
-    logo_url = env('HOST_URL') + 'static/images/logos/regerneration-room-full.png'
+    url = settings.CLIENT_PATH + f'/login/password_reset?pk=${ encoded_pk }&token={token}'
+    logo_url = env('HOST_URL') + '/static/images/logos/regerneration-room-full.png'
     # send email
     message = render_to_string('email_templates/reset_password.html', { "url": url, 'logo_url': logo_url })
     email=EmailMessage('Reset Password', message, to=[data['email']])
