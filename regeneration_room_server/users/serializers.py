@@ -10,10 +10,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 class ResetPasswordSerializer(serializers.Serializer):
 
-  password=serializers.CharField(
-    write_only=True,
-    min_length=4
-  )
+  password=serializers.CharField(write_only=True,min_length=4)
 
   class Meta:
     fields=("password",)
@@ -36,3 +33,9 @@ class ResetPasswordSerializer(serializers.Serializer):
     user.save()
     
     return data
+
+# class specifically for viewing users
+class UserViewSerializer(serializers.ModelSerializer):
+  class Meta:
+    model=CustomUser
+    exclude=['password']
