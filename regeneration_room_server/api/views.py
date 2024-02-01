@@ -13,6 +13,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from users.serializers import ResetPasswordSerializer
 
+
 import environ
 env = environ.Env()
 
@@ -51,7 +52,6 @@ def users(request):
     user.last_name=last_name
     user.notifications=notifications
     user.save()
-
     # send email after user is created
     send_mail(
       welcome_template.subject,
@@ -63,7 +63,6 @@ def users(request):
     # return successful message
     context = { 'detail': f'Successfully Registered { first_name }!' }
     return Response(context, status.HTTP_201_CREATED)
-
   # return all users as json response
   users = CustomUser.objects.all();
   serializer = CustomUserSerializer(users, many=True)
@@ -91,6 +90,28 @@ def reset_password(request, encoded_pk=None, token=None):
     email.content_subtype='html'
     email.send()
     return Response({}, status.HTTP_200_OK)
-  
 
   return Response({}, status.HTTP_200_OK)
+
+###################
+# Appointment Views
+###################
+
+from appointments.models import Appointment
+from appointments.serializers import AppointmentSerializer
+from datetime import datetime
+
+@api_view(['GET', 'POST'])
+def appointments(request):
+  # now = datetime.now().strftime
+  # print()
+  # return Response({'time': 'dont Know'})
+  
+  if request.method == 'POST':
+    serializer = AppointmentSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+  
+  # default return all appointments JSON
+  appointments=Appointment.objects.all()
+  serializer=AppointmentSerializer(appointments, many=True)
+  return Response(serializer.data)

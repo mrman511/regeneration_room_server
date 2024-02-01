@@ -29,7 +29,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [env('HOST_URL'), env('DEV_FRONT_URL'), env('FRONT_URL')]
+ALLOWED_HOSTS = [env('HOST_URL'), env('DEV_FRONT_URL'), env('FRONT_URL'), 'localhost']
 
 # current path for client side rendering
 CLIENT_PATH = env('FRONT_URL')
@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 
     'users.apps.UsersConfig',
+    'appointments.apps.AppointmentsConfig',
+    'api.apps.ApiConfig',
+    # 'api.appointments_api'
 ]
 
 AUTH_USER_MODEL="users.CustomUser"
@@ -131,14 +134,14 @@ WSGI_APPLICATION = 'regeneration_room_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'PORT': env('DB_PORT'),
-        'HOST': env('DB_HOST'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': env('DB_NAME'),
+        # 'USER': env('DB_USER'),
+        # 'PASSWORD': env('DB_PASSWORD'),
+        # 'PORT': env('DB_PORT'),
+        # 'HOST': env('DB_HOST'),
     }
 }
 
