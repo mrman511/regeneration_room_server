@@ -103,14 +103,9 @@ from datetime import datetime
 
 @api_view(['GET', 'POST'])
 def appointments(request):
-  # now = datetime.now().strftime
-  # print()
-  # return Response({'time': 'dont Know'})
-  
   if request.method == 'POST':
     serializer = AppointmentSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-  
   # default return all appointments JSON
   appointments=Appointment.objects.all()
   serializer=AppointmentSerializer(appointments, many=True)
