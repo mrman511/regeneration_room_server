@@ -99,13 +99,17 @@ def reset_password(request, encoded_pk=None, token=None):
 
 from appointments.models import Appointment
 from appointments.serializers import AppointmentSerializer
-from datetime import datetime
 
 @api_view(['GET', 'POST'])
 def appointments(request):
   if request.method == 'POST':
-    serializer = AppointmentSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    data=request.data
+    print('***DATA***')
+    print(data)
+    serializer = AppointmentSerializer(data=data)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+    return Response({}, status.HTTP_201_CREATED)
   # default return all appointments JSON
   appointments=Appointment.objects.all()
   serializer=AppointmentSerializer(appointments, many=True)

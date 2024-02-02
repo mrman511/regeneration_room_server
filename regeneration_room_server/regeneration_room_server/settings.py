@@ -134,8 +134,18 @@ WSGI_APPLICATION = 'regeneration_room_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        
+        # *** Development Database ***
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DEV_DB_NAME'),
+        'USER': env('DEV_DB_USER'),
+        'PASSWORD': env('DEV_DB_PASSWORD'),
+        'PORT': env('DEV_DB_PORT'),
+        'HOST': env('DEV_DB_HOST'),
+
+        # *** Deployed Database ***
         # 'ENGINE': 'django.db.backends.postgresql',
         # 'NAME': env('DB_NAME'),
         # 'USER': env('DB_USER'),
