@@ -1,6 +1,7 @@
 from django.conf import settings
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
@@ -104,11 +105,10 @@ from appointments.serializers import AppointmentSerializer
 def appointments(request):
   if request.method == 'POST':
     data=request.data
-    print('***DATA***')
-    print(data)
+    # data['user']={'id': request.user.id}
     serializer = AppointmentSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
-      serializer.save()
+      serializer.save(user=request.user)
     return Response({}, status.HTTP_201_CREATED)
   # default return all appointments JSON
   appointments=Appointment.objects.all()

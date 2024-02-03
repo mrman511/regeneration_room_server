@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'appointments.apps.AppointmentsConfig',
     'api.apps.ApiConfig',
+    'app_preferences.apps.AppPreferencesConfig',
     # 'api.appointments_api'
 ]
 
