@@ -1,6 +1,7 @@
 from django.conf import settings
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
@@ -99,13 +100,16 @@ def reset_password(request, encoded_pk=None, token=None):
 
 from appointments.models import Appointment
 from appointments.serializers import AppointmentSerializer
-from datetime import datetime
 
 @api_view(['GET', 'POST'])
 def appointments(request):
   if request.method == 'POST':
-    serializer = AppointmentSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    data=request.data
+    # data['user']={'id': request.user.id}
+    serializer = AppointmentSerializer(data=data)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save(user=request.user)
+    return Response({}, status.HTTP_201_CREATED)
   # default return all appointments JSON
   appointments=Appointment.objects.all()
   serializer=AppointmentSerializer(appointments, many=True)
