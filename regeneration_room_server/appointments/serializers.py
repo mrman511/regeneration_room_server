@@ -1,10 +1,7 @@
 from rest_framework import serializers
 from .models import Appointment
-from users.serializers import CustomUserSerializer
-from users.models import CustomUser
 
 class AppointmentSerializer(serializers.ModelSerializer):
-  user = serializers.RelatedField(read_only=True)
 
   class Meta:
     model=Appointment
