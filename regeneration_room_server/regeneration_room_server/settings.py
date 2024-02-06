@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'appointments.apps.AppointmentsConfig',
     'api.apps.ApiConfig',
-    'app_preferences.apps.AppPreferencesConfig',
+    'operating_hours.apps.OperatingHoursConfig',
     # 'api.appointments_api'
 ]
 

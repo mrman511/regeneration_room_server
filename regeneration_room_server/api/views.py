@@ -114,3 +114,18 @@ def appointments(request):
   appointments=Appointment.objects.all()
   serializer=AppointmentSerializer(appointments, many=True)
   return Response(serializer.data)
+
+
+
+
+#######################
+# App Preference Views
+#######################
+
+from operating_hours.models import hours
+from operating_hours.serializers import OperatingHoursSerializer
+
+@api_view(['GET'])
+def operating_hours(request):
+  serializer=OperatingHoursSerializer(hours, many=False)
+  return Response(serializer.data)
