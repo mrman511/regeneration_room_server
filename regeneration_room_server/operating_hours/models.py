@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 class OperatingHours(models.Model):
-  HOURS_FORMAT = '%H:%M'
+  TIME_FORMAT = '%H:%M:%S'
   DATE_FORMAT = '%Y-%m-%d'
 
   DAYS = [
@@ -51,4 +51,4 @@ class HolidayHours(models.Model):
     return self.date == date
 
   def __str__(self):
-    return f"{self.day_name}: {self.date}"
+    return f"{self.name}: {self.date}"
