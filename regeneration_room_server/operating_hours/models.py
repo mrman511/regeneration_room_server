@@ -1,8 +1,11 @@
+from xml.dom import ValidationErr
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 class OperatingHours(models.Model):
   HOURS_FORMAT = '%H:%M'
+  DATE_FORMAT = '%Y-%m-%d'
+
   DAYS = [
     (0, 'Monday'),
     (1, 'Tuesday'),
@@ -34,12 +37,18 @@ except:
   hours.save()
 
 class HolidayHours(models.Model):
+  HOURS_FORMAT = '%H:%M'
+  DATE_FORMAT = '%Y-%m-%d'
+
   operating_hours=models.ForeignKey(OperatingHours, related_name='holiday_hours', default=hours.id, on_delete=models.CASCADE)
-  day_name=models.CharField(null=True, blank=True, max_length=50)
+  name=models.CharField(null=True, blank=True, max_length=50)
   date=models.DateField(null=True, blank=True)
   opening_hours=models.TimeField(null=True, blank=True)
-  closed_hours=models.TimeField(null=True, blank=True)
+  closing_hours=models.TimeField(null=True, blank=True)
   is_open=models.BooleanField(default=True)
+
+  def __eq__(self, date) -> bool:
+    return self.date == date
 
   def __str__(self):
     return f"{self.day_name}: {self.date}"
