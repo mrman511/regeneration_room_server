@@ -1,7 +1,10 @@
-from dataclasses import fields
 from rest_framework import serializers
-from operating_hours.models import OperatingHours, HolidayHours
+from operating_hours.models import Operations, OperatingHours, HolidayHours
 
+class OperationsSerailizer(serializers.ModelSerializer):
+  class Meta:
+    model=Operations
+    fields="__all__"
 
 class HolidayHoursSerializer(serializers.ModelSerializer):
   class Meta:

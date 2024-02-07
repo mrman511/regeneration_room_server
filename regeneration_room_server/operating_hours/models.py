@@ -1,6 +1,13 @@
-from xml.dom import ValidationErr
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+
+class Operations(models.Model):
+  name=models.CharField(max_length=30, unique=True)
+  num_chairs=models.IntegerField(default=5)
+
+  def __str__(self):
+    return self.name
+
 
 class OperatingHours(models.Model):
   TIME_FORMAT = '%H:%M:%S'
@@ -23,18 +30,14 @@ class OperatingHours(models.Model):
     return ['09:00' for i in range(5)]
   def default_closing_hours():
     return ['17:00' for i in range(5)]
-  
 
   opening_hours=ArrayField(models.TimeField(null=True, blank=True), size=7, default=default_opening_hours)
   closing_hours=ArrayField(models.TimeField(null=True, blank=True), size=7, default=default_closing_hours)
   days_closed=ArrayField(models.DateField(null=True, blank=True), null=True, blank=True)
   weekdays_open=ArrayField(models.BooleanField(default=True), size=7, default=default_days_open)
 
-try:
-  hours = OperatingHours.objects.first()
-except:
-  hours = OperatingHours.objects.create()
-  hours.save()
+
+from .default_models import hours
 
 class HolidayHours(models.Model):
   HOURS_FORMAT = '%H:%M'
