@@ -1,8 +1,10 @@
 import datetime
+from xml.dom import ValidationErr
 timedelta = datetime.timedelta
 from rest_framework import serializers
 from .models import Appointment
-from operating_hours.models import hours, HolidayHours
+from operating_hours.models import HolidayHours
+from operating_hours.default_models import hours, operations
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -14,17 +16,27 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
   def validate(self, data):
     duration=60
-
-    # duration needs to be a multiple of 30
+    # convert date to datetime.datetime
+    def convert_date(date):
+      return datetime.datetime.strptime(str(date), hours.DATE_FORMAT).date()
+    # convert datetime.time to datetime.datetime
+    def convert_time(time):
+      return datetime.datetime.strptime(str(time), hours.TIME_FORMAT)
+    def get_appointment_datetime(date, time):
+      return datetime.datetime.strptime(f'{str(date)}:{str(time)}', f'{hours.DATE_FORMAT}:{hours.TIME_FORMAT}')
+      
+    # validate duration
     if data['duration']:
       duration=data['duration']
+      if duration < 30:
+        raise serializers.validationError('Appointments need to be a minimum of 30 minutes')
+      # duration needs to be a multiple of 30
       if data['duration'] % 30 != 0:
         raise serializers.ValidationError('Appointments can only be made in 30 minute increments.')
 
     # validate date
-    if data['date']:
+    try:
       date=data['date']
-      datetime.datetime
       day_num=date.weekday()
       day_name=date.strftime('%A')
       # check if open for the day of the week for the given date
@@ -50,14 +62,12 @@ class AppointmentSerializer(serializers.ModelSerializer):
         # change operating hours to day specific hours
         operating_hours['opening_hours']=holiday.opening_hours
         operating_hours['closing_hours']=holiday.closing_hours
-          
+    except:
+      raise serializers.ValidationError('Invalid appointment date requested.')
 
     # validate time
-    if data['time']:
+    try:
       time=data['time']
-      # convert datetime.time to datetime.datetime
-      def convert_time(time):
-        return datetime.datetime.strptime(str(time), hours.TIME_FORMAT)
 
       # if time is before operating_hours['opening_hours']
       if time < operating_hours['opening_hours']:
@@ -66,19 +76,41 @@ class AppointmentSerializer(serializers.ModelSerializer):
       # if time + duration is after operating_hours['closing_hours']
       if (convert_time(time) + timedelta(minutes=duration)) > convert_time(operating_hours['closing_hours']):
         raise serializers.ValidationError(f'Latest available booking time for Regeneration Room on { date } is { operating_hours["closing_hours"] }')
-     
-      if (not time.minute==0 and not time.minute==30):
-        # minutes = time.minute
-        # converted_time = convert_time(time)
-        # minutes = 
 
-        raise serializers.ValidationError('Appoinments at Regeneration Room are begin every half hour ')
+      # if time is not on the hour or half hour
+      if (not time.minute==0 and not time.minute==30):
+        raise serializers.ValidationError('Appoinments at Regeneration Room are begin every half hour')
+    except: 
+      raise serializers.validationError('Invalid appointment time requested.')
+   
+    # validate number of time slots
+    requested_date=convert_date(date)
+    requested_datetime=get_appointment_datetime(date, time)
+
+    #get number of half hour time increments the request appointment
+    requested_time_slots = [(requested_datetime + timedelta(minutes=i * 30)).time() for i in range(int(duration/30))]
+
+    for time_slot in requested_time_slots:
+      # get appointments with a duration of 60 that were scheduled for previous time slot
+      previous_time_slot = (requested_datetime - timedelta(minutes=30)).time()
+      apps1 = Appointment.objects.filter(date=requested_date, time=previous_time_slot, duration=60)
+
+      # get appointments for selected time slots
+      apps2 = Appointment.objects.filter(date=requested_date, time=time_slot)
+      print(f'len(apps1): {len(apps1)}')
+      print(f'len(apps2): {len(apps2)}')
+      if (len(apps1) + len(apps2) >= operations.num_chairs):
+        raise serializers.ValidationError(f"We are shedule is full for {requested_date.strftime('%H:%M')} on {requested_date.strftime('%B %d')}")
+
+
     return data
 
   def create(self, validated_data):
     appointment=Appointment.objects.create(
       duration=validated_data['duration'],
-      user=validated_data['user']
+      user=validated_data['user'],
+      date=validated_data['date'],
+      time=validated_data['time']
     )
     appointment.save()
     return validated_data
