@@ -101,7 +101,7 @@ def reset_password(request, encoded_pk=None, token=None):
 from appointments.models import Appointment
 from appointments.serializers import AppointmentSerializer
 
-@api_view(['GET', 'POST', 'PATCH'])
+@api_view(['GET', 'POST', 'PATCH', 'DELETE'])
 def appointments(request, pk=None):
   if request.method == 'POST':
     data=request.data
@@ -120,6 +120,14 @@ def appointments(request, pk=None):
       if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
+    except:
+      return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
+
+  if request.method == 'DELETE':
+    try:
+      appointment=Appointment.objects.get(id=pk)
+      appointment.delete()
+      return Response({'detail': 'Appointment successfully removed.'}, status.HTTP_204_NO_CONTENT)
     except:
       return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
 
