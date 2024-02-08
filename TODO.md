@@ -21,5 +21,5 @@
   - [X] - Read
   - [X] - Update
   - [X] - Delete
-  - [ ] - add user verification for Update and Delete
+  - [X] - add user verification for Update and Delete
 
