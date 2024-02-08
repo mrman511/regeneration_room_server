@@ -16,9 +16,10 @@
 - ### Validation
   - [X] - ensure there are not more appointments for number of chairs per given time slot
   - [] - validate user
-- ### [] - CRUD
+- ### [X] - CRUD
   - [X] - Create
   - [X] - Read
   - [X] - Update
-  - [] - Delete
+  - [X] - Delete
+  - [ ] - add user verification for Update and Delete
 
