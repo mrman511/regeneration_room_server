@@ -111,25 +111,27 @@ def appointments(request, pk=None):
       serializer.save(user=request.user)
     return Response(serializer.data)
 
-  if request.method == 'PATCH':
-    if pk is None:
-      return Response({'detail': 'No appointment provided.'}, status.HTTP_400_BAD_REQUEST)
+  # PATCH and DELETE Requests
+  if pk is not None and not request.method == 'GET':
+    # get appointment or error
     try:
+      appointment=Appointment.objects.get(pk)
+    except:
+      return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
+    # ensure proper user for appointment 
+    if not appointment.user == request.user:
+      return Response(status.HTTP_401_UNAUTHORIZED)
+
+    if request.method == 'PATCH':
       appointment=Appointment.objects.get(id=pk)
       serializer=AppointmentSerializer(appointment, data=request.data, partial=True)
       if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
-    except:
-      return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
 
-  if request.method == 'DELETE':
-    try:
-      appointment=Appointment.objects.get(id=pk)
+    if request.method == 'DELETE':
       appointment.delete()
       return Response({'detail': 'Appointment successfully removed.'}, status.HTTP_204_NO_CONTENT)
-    except:
-      return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
 
   # return requested Appointment
   if pk is not None:
