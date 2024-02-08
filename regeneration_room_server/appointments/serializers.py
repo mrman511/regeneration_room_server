@@ -1,10 +1,12 @@
 import datetime
-from xml.dom import ValidationErr
 timedelta = datetime.timedelta
+from itertools import chain
 from rest_framework import serializers
 from .models import Appointment
 from operating_hours.models import HolidayHours
 from operating_hours.default_models import hours, operations
+import pprint
+pprint = pprint.PrettyPrinter(indent=4).pprint
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -16,12 +18,14 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
   def validate(self, data):
     duration=60
+    instance = self.instance if self.instance else None
     # convert date to datetime.datetime
     def convert_date(date):
       return datetime.datetime.strptime(str(date), hours.DATE_FORMAT).date()
     # convert datetime.time to datetime.datetime
     def convert_time(time):
       return datetime.datetime.strptime(str(time), hours.TIME_FORMAT)
+    # get requested date and time as datetime
     def get_appointment_datetime(date, time):
       return datetime.datetime.strptime(f'{str(date)}:{str(time)}', f'{hours.DATE_FORMAT}:{hours.TIME_FORMAT}')
       
@@ -82,28 +86,44 @@ class AppointmentSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError('Appoinments at Regeneration Room are begin every half hour')
     except: 
       raise serializers.validationError('Invalid appointment time requested.')
-   
+    
     # validate number of time slots
     requested_date=convert_date(date)
     requested_datetime=get_appointment_datetime(date, time)
 
-    #get number of half hour time increments the request appointment
+    #time slots = duration of requested appointment in 30 minute increments
     requested_time_slots = [(requested_datetime + timedelta(minutes=i * 30)).time() for i in range(int(duration/30))]
 
+    # validate for open timeslots in scedule
     for time_slot in requested_time_slots:
       # get appointments with a duration of 60 that were scheduled for previous time slot
       previous_time_slot = (requested_datetime - timedelta(minutes=30)).time()
       apps1 = Appointment.objects.filter(date=requested_date, time=previous_time_slot, duration=60)
-
       # get appointments for selected time slots
       apps2 = Appointment.objects.filter(date=requested_date, time=time_slot)
-      print(f'len(apps1): {len(apps1)}')
-      print(f'len(apps2): {len(apps2)}')
-      if (len(apps1) + len(apps2) >= operations.num_chairs):
-        raise serializers.ValidationError(f"We are shedule is full for {requested_date.strftime('%H:%M')} on {requested_date.strftime('%B %d')}")
-
-
+      # combine apps1 and apps2 appointment lists
+      apps=list(chain(apps1, apps2))
+      # check apps list for instance and remove if present
+      if instance:
+        try:
+          apps.remove(instance)
+        except:
+          pass
+      # ERROR if length of combined appoinment lists is greater then number of chairs available
+      if (len(apps) >= operations.num_chairs):  
+        raise serializers.ValidationError(f"Unfortunately our shedule is full for {requested_datetime.strftime('%H:%M')} on {requested_datetime.strftime('%B %d')}")
+      
     return data
+
+  def update(self, instance, validated_data):
+    if validated_data['date']:
+      instance.date=validated_data['date']
+    if validated_data['time']:
+      instance.time=validated_data['time']
+    if validated_data['duration']:
+      instance.duration=validated_data['duration']
+    instance.save()
+    return validated_data
 
   def create(self, validated_data):
     appointment=Appointment.objects.create(
