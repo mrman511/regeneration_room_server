@@ -101,15 +101,36 @@ def reset_password(request, encoded_pk=None, token=None):
 from appointments.models import Appointment
 from appointments.serializers import AppointmentSerializer
 
-@api_view(['GET', 'POST'])
-def appointments(request):
+@api_view(['GET', 'POST', 'PATCH'])
+def appointments(request, pk=None):
   if request.method == 'POST':
     data=request.data
     # data['user']={'id': request.user.id}
     serializer = AppointmentSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
       serializer.save(user=request.user)
-    return Response({}, status.HTTP_201_CREATED)
+    return Response(serializer.data)
+
+  if request.method == 'PATCH':
+    if pk is None:
+      return Response({'detail': 'No appointment provided.'}, status.HTTP_400_BAD_REQUEST)
+    try:
+      appointment=Appointment.objects.get(id=pk)
+      serializer=AppointmentSerializer(appointment, data=request.data, partial=True)
+      if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    except:
+      return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
+
+  # return requested Appointment
+  if pk is not None:
+    try:
+      appointment=Appointment.objects.get(id=pk)
+      serializer=AppointmentSerializer(appointment, many=False)
+      return Response(serializer.data)
+    except:
+      return Response({'detail': 'Invalid appointment provided'}, status.HTTP_400_BAD_REQUEST)
   # default return all appointments JSON
   appointments=Appointment.objects.all()
   serializer=AppointmentSerializer(appointments, many=True)

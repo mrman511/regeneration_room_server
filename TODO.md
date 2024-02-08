@@ -1,5 +1,5 @@
 ## Operating Hours
-- [] - number of chairs to model
+- [X] - number of chairs to model
 - ### [] - CRUD
   - [x] - Read
   - [] - Update
@@ -14,6 +14,11 @@
   - [] - Delete
 ## Appointments
 - ### Validation
-  - [] - ensure there are not more appointments for number of chairs per given time slot
+  - [X] - ensure there are not more appointments for number of chairs per given time slot
   - [] - validate user
+- ### [] - CRUD
+  - [X] - Create
+  - [X] - Read
+  - [X] - Update
+  - [] - Delete
 
