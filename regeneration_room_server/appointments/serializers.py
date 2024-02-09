@@ -5,9 +5,6 @@ from rest_framework import serializers
 from .models import Appointment
 from operating_hours.models import HolidayHours
 from operating_hours.default_models import hours, operations
-import pprint
-pprint = pprint.PrettyPrinter(indent=4).pprint
-
 
 class AppointmentSerializer(serializers.ModelSerializer):
 
