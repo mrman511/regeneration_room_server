@@ -17,10 +17,11 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
 
   def convert_date(self, date):
     return datetime.datetime.strptime(str(date), hours.DATE_FORMAT).date()
+  def convert_time(self, time):
+    return datetime.datetime.strptime(str(time), hours.TIME_FORMAT)
 
   # validate for presence of required fields
   def validate(self, data):
-    print(data)
     # date is a required field
     try:
       date=data['date']
@@ -33,11 +34,13 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
     except:
       data['is_open']=False
 
-    # if is_open validate for opening and closing hours 
+    # if is_open validate for opening and closing hours
     if data['is_open']:
       try:
         opening_hours=data['opening_hours']
         closing_hours=data['closing_hours']
+        if opening_hours >= closing_hours:
+          raise serializers.ValidationError('Selected closing hours cannot be before selected opening hours')
       except:
         raise serializers.ValidationError('Holiday is set to open but opening or closing hours were not provided')
     
