@@ -19,4 +19,7 @@ urlpatterns = [
   path('appointments/<str:pk>/', views.appointments),
 
   path('operating_hours/', views.operating_hours),
+
+  # admin routes
+  path('admin/holiday_hours/', views.holiday_hours),
 ]

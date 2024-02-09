@@ -160,3 +160,24 @@ from operating_hours.serializers import OperatingHoursSerializer
 def operating_hours(request):
   serializer=OperatingHoursSerializer(hours, many=False)
   return Response(serializer.data)
+
+#######################
+# ADMIN Views
+#######################
+
+from operating_hours.serializers import HolidayHoursSerializer
+from operating_hours.models import HolidayHours
+
+@api_view(['GET', 'PATCH', 'POST', 'DELETE'])
+@permission_classes([IsAdminUser])
+def holiday_hours(request):
+
+  if request.method == 'POST':
+    serializer=HolidayHoursSerializer(data=request.data)
+    print(serializer.is_valid(raise_exception=True))
+    return Response(serializer.data)
+
+  holidays=HolidayHours.objects.all()
+  serializer=HolidayHoursSerializer(holidays, many=True)
+  return Response(serializer.data)
+
