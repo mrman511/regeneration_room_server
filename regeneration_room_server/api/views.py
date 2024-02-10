@@ -187,6 +187,11 @@ def holiday_hours(request, pk=None):
       serializer.save()
       return Response(status.HTTP_202_ACCEPTED)
 
+  if request.method == 'DELETE':
+    holiday=HolidayHours.objects.get(pk):
+    holiday.delete()
+    return Response({'detail': 'Holiday successfully deleted.'}, status.HTTP_204_NO_CONTENT)
+    
   holidays=HolidayHours.objects.all()
   serializer=HolidayHoursSerializer(holidays, many=True)
   return Response(serializer.data)
