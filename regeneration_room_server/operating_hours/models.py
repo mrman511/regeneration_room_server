@@ -53,5 +53,8 @@ class HolidayHours(models.Model):
   def __eq__(self, date) -> bool:
     return self.date == date
 
+  def __hash__(self):
+    return hash(self.date)
+
   def __str__(self):
     return f"{self.name}: {self.date}"

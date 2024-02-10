@@ -48,11 +48,9 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
 
   def validate_date(self, date):
     # only one holiday hour per date
-    try:
-      HolidayHours.objects.get(date=date)
+    
+    if HolidayHours.objects.filter(date=date).exists():
       raise serializers.ValidationError(f'Holiday hours already exist for {date}.')
-    except:
-      pass
 
     # ensure date after current date
     holiday_date = self.convert_date(date)
@@ -61,6 +59,12 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
       raise serializers.ValidationError('Unable to set holidays for past dates.')
 
     return date
+
+  def create(self, validated_data):
+    holiday=HolidayHours.objects.create(**validated_data)
+    # holiday.save()
+
+    return validated_data
 
 class OperatingHoursSerializer(serializers.ModelSerializer):
   holiday_hours=HolidayHoursSerializer(many=True)

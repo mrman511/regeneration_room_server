@@ -109,7 +109,7 @@ def appointments(request, pk=None):
     serializer = AppointmentSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
       serializer.save(user=request.user)
-    return Response(serializer.data)
+      return Response(status.HTTP_201_CREATED)
 
   # PATCH and DELETE Requests
   if pk is not None and not request.method == 'GET':
@@ -169,13 +169,14 @@ from operating_hours.serializers import HolidayHoursSerializer
 from operating_hours.models import HolidayHours
 
 @api_view(['GET', 'PATCH', 'POST', 'DELETE'])
-@permission_classes([IsAdminUser])
+# @permission_classes([IsAdminUser])
 def holiday_hours(request):
 
   if request.method == 'POST':
     serializer=HolidayHoursSerializer(data=request.data)
-    print(serializer.is_valid(raise_exception=True))
-    return Response(serializer.data)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+      return Response(status.HTTP_201_CREATED)
 
   holidays=HolidayHours.objects.all()
   serializer=HolidayHoursSerializer(holidays, many=True)
