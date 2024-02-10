@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from operating_hours.models import Operations, OperatingHours, HolidayHours
-from operating_hours.default_models import hours, operations
+from operating_hours.default_models import hours
 import datetime
 timedelta = datetime.timedelta
 
@@ -13,6 +13,25 @@ class OperationsSerailizer(serializers.ModelSerializer):
   class Meta:
     model=Operations
     fields="__all__"
+
+  def validate_num_chairs(self, num_chairs):
+    if num_chairs <= 0:
+      raise serializers.ValidationError(f'Invalid number of chairs ({num_chairs}) provided')
+    return num_chairs
+
+  def validate_name(self, name):
+    raise serializers.validationError('Unable to change name on this platform contact developer to buisness name')
+
+  def update(self, instance, validated_data):
+    for key in validated_data.keys():
+      if key == 'num_chairs':
+        instance.num_chairs=validated_data['num_chairs']
+    instance.save()
+    return validated_data
+
+  def create(self, validated_data):  
+    return validated_data
+
 
 class HolidayHoursSerializer(serializers.ModelSerializer):
   class Meta:
@@ -85,6 +104,7 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
     holiday.save()
 
     return validated_data
+
 
 class OperatingHoursSerializer(serializers.ModelSerializer):
   holiday_hours=HolidayHoursSerializer(many=True)

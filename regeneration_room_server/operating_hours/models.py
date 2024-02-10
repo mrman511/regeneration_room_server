@@ -37,7 +37,7 @@ class OperatingHours(models.Model):
   weekdays_open=ArrayField(models.BooleanField(default=True), size=7, default=default_days_open)
 
 
-from .default_models import hours
+from .default_models import hours, operations
 
 class HolidayHours(models.Model):
   HOURS_FORMAT = '%H:%M'

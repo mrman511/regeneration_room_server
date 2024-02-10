@@ -1,4 +1,3 @@
-from functools import partial
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -156,8 +155,8 @@ def appointments(request, pk=None):
 # App Preference Views
 #######################
 
-from operating_hours.models import hours
-from operating_hours.serializers import OperatingHoursSerializer
+from operating_hours.models import hours, operations
+from operating_hours.serializers import OperatingHoursSerializer, OperationsSerailizer
 
 @api_view(['GET'])
 def operating_hours(request):
@@ -192,3 +191,14 @@ def holiday_hours(request, pk=None):
   serializer=HolidayHoursSerializer(holidays, many=True)
   return Response(serializer.data)
 
+@api_view(['GET', 'PATCH'])
+# @permission_classes([IsAdminUser])
+def store_operations(request):
+  if request.method == "PATCH":
+    serializer=OperationsSerailizer(operations, data=request.data, partial=True)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+      return Response(status.HTTP_202_ACCEPTED)
+
+  serializer=OperationsSerailizer(operations, many=False)
+  return Response(serializer.data)

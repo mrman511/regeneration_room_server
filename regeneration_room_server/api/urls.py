@@ -23,4 +23,5 @@ urlpatterns = [
   # admin routes
   path('admin/holiday_hours/', views.holiday_hours),
   path('admin/holiday_hours/<str:pk>/', views.holiday_hours),
+  path('admin/operations/', views.store_operations),
 ]
