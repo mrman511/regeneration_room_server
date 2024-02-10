@@ -113,12 +113,13 @@ class AppointmentSerializer(serializers.ModelSerializer):
     return data
 
   def update(self, instance, validated_data):
-    if validated_data['date']:
-      instance.date=validated_data['date']
-    if validated_data['time']:
-      instance.time=validated_data['time']
-    if validated_data['duration']:
-      instance.duration=validated_data['duration']
+    for key in validated_data.keys():
+      if key == 'date':
+        instance.date=validated_data['date']
+      if key == 'time':
+        instance.time=validated_data['time']
+      if key == 'duration':
+        instance.duration=validated_data['duration']
     instance.save()
     return validated_data
 

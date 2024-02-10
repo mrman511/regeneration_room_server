@@ -1,9 +1,13 @@
-from cmath import log
 from rest_framework import serializers
 from operating_hours.models import Operations, OperatingHours, HolidayHours
 from operating_hours.default_models import hours, operations
 import datetime
 timedelta = datetime.timedelta
+
+
+import pprint
+pprint = pprint.PrettyPrinter(indent=4).pprint
+
 
 class OperationsSerailizer(serializers.ModelSerializer):
   class Meta:
@@ -21,12 +25,14 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
     return datetime.datetime.strptime(str(time), hours.TIME_FORMAT)
 
   # validate for presence of required fields
+  # as well as fields that correspond with other fields
   def validate(self, data):
     # date is a required field
-    try:
-      date=data['date']
-    except: 
-      raise serializers.ValidationError('A date is required for holiday hours')
+    if not hasattr(self, 'instance'):
+      try:
+        date=data['date']
+      except: 
+        raise serializers.ValidationError('A date is required for holiday hours')
 
     # is is_open not supplied set is open to False
     try:
@@ -47,8 +53,7 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
     return data
 
   def validate_date(self, date):
-    # only one holiday hour per date
-    
+    # only one holiday per date
     if HolidayHours.objects.filter(date=date).exists():
       raise serializers.ValidationError(f'Holiday hours already exist for {date}.')
 
@@ -60,9 +65,24 @@ class HolidayHoursSerializer(serializers.ModelSerializer):
 
     return date
 
+  def update(self, instance, validated_data):
+    for key in validated_data.keys():
+      if key == 'name':
+        instance.name = validated_data['name']
+      if key == 'date':
+        instance.date = validated_data['date']
+      if key == 'opening_hours':
+        instance.opening_hours = validated_data['opening_hours']
+      if key == 'closing_hours':
+        instance.closing_hours = validated_data['closing_hours']
+      if key == 'is_open':
+        instance.is_open = validated_data['is_open']
+    instance.save()
+    return instance
+
   def create(self, validated_data):
     holiday=HolidayHours.objects.create(**validated_data)
-    # holiday.save()
+    holiday.save()
 
     return validated_data
 

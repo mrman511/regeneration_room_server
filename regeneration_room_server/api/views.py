@@ -1,3 +1,4 @@
+from functools import partial
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -111,9 +112,9 @@ def appointments(request, pk=None):
       serializer.save(user=request.user)
       return Response(status.HTTP_201_CREATED)
 
-  # PATCH and DELETE Requests
-  if pk is not None and not request.method == 'GET':
-    # get appointment or error
+  
+  def get_authorized_appointment():
+    # get appointment  or error
     try:
       appointment=Appointment.objects.get(pk)
     except:
@@ -121,17 +122,19 @@ def appointments(request, pk=None):
     # ensure proper user for appointment 
     if not appointment.user == request.user:
       return Response(status.HTTP_401_UNAUTHORIZED)
+    return appointment
 
-    if request.method == 'PATCH':
-      appointment=Appointment.objects.get(id=pk)
-      serializer=AppointmentSerializer(appointment, data=request.data, partial=True)
-      if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
+  if request.method == 'PATCH':
+    appointment=get_authorized_appointment()
+    serializer=AppointmentSerializer(appointment, data=request.data, partial=True)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+      return Response(status.HTTP_201_ACCEPTED)
 
-    if request.method == 'DELETE':
-      appointment.delete()
-      return Response({'detail': 'Appointment successfully removed.'}, status.HTTP_204_NO_CONTENT)
+  if request.method == 'DELETE':
+    appointment=get_authorized_appointment()
+    appointment.delete()
+    return Response({'detail': 'Appointment successfully removed.'}, status.HTTP_204_NO_CONTENT)
 
   # return requested Appointment
   if pk is not None:
@@ -170,13 +173,20 @@ from operating_hours.models import HolidayHours
 
 @api_view(['GET', 'PATCH', 'POST', 'DELETE'])
 # @permission_classes([IsAdminUser])
-def holiday_hours(request):
+def holiday_hours(request, pk=None):
 
   if request.method == 'POST':
     serializer=HolidayHoursSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
       serializer.save()
       return Response(status.HTTP_201_CREATED)
+
+  if request.method == 'PATCH':
+    holiday=HolidayHours.objects.get(id=pk)
+    serializer=HolidayHoursSerializer(holiday, data=request.data, partial=True)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+      return Response(status.HTTP_202_ACCEPTED)
 
   holidays=HolidayHours.objects.all()
   serializer=HolidayHoursSerializer(holidays, many=True)
