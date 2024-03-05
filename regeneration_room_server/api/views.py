@@ -29,6 +29,19 @@ def end_points(request):
     'end_points': {
       'GET': 'api/',
     },
+    'users': {
+      'GET': 'users/',
+      'POST': 'users/',
+    },
+    'appointments': {
+      'GET': {
+        'all': 'appointments/',
+        'id': 'appointments/<str:pk>/'
+      },
+      'POST': 'appointments/',
+      'PATCH': 'appointments/<str:pk>/',
+      'DELETE': 'appointments/<str:pk/>',
+    },
   }
   return Response(context)
 
@@ -68,6 +81,15 @@ def users(request):
   users = CustomUser.objects.all();
   serializer = CustomUserSerializer(users, many=True)
   return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user(request):
+  if request.method == 'GET':
+    user = request.user
+    print(user)
+    serializer=CustomUserSerializer(user, many=False)
+    return Response(serializer.data)
 
 @api_view(['POST', 'PATCH'])
 def reset_password(request, encoded_pk=None, token=None):
@@ -163,47 +185,47 @@ def operating_hours(request):
   serializer=OperatingHoursSerializer(hours, many=False)
   return Response(serializer.data)
 
-#######################
-# ADMIN Views
-#######################
+# #######################
+# # ADMIN Views
+# #######################
 
-from operating_hours.serializers import HolidayHoursSerializer
-from operating_hours.models import HolidayHours
+# from operating_hours.serializers import HolidayHoursSerializer
+# from operating_hours.models import HolidayHours
 
-@api_view(['GET', 'PATCH', 'POST', 'DELETE'])
-# @permission_classes([IsAdminUser])
-def holiday_hours(request, pk=None):
+# @api_view(['GET', 'PATCH', 'POST', 'DELETE'])
+# # @permission_classes([IsAdminUser])
+# def holiday_hours(request, pk=None):
 
-  if request.method == 'POST':
-    serializer=HolidayHoursSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-      serializer.save()
-      return Response(status.HTTP_201_CREATED)
+#   if request.method == 'POST':
+#     serializer=HolidayHoursSerializer(data=request.data)
+#     if serializer.is_valid(raise_exception=True):
+#       serializer.save()
+#       return Response(status.HTTP_201_CREATED)
 
-  if request.method == 'PATCH':
-    holiday=HolidayHours.objects.get(id=pk)
-    serializer=HolidayHoursSerializer(holiday, data=request.data, partial=True)
-    if serializer.is_valid(raise_exception=True):
-      serializer.save()
-      return Response(status.HTTP_202_ACCEPTED)
+#   if request.method == 'PATCH':
+#     holiday=HolidayHours.objects.get(id=pk)
+#     serializer=HolidayHoursSerializer(holiday, data=request.data, partial=True)
+#     if serializer.is_valid(raise_exception=True):
+#       serializer.save()
+#       return Response(status.HTTP_202_ACCEPTED)
 
-  if request.method == 'DELETE':
-    holiday=HolidayHours.objects.get(pk):
-    holiday.delete()
-    return Response({'detail': 'Holiday successfully deleted.'}, status.HTTP_204_NO_CONTENT)
+#   if request.method == 'DELETE':
+#     holiday=HolidayHours.objects.get(pk)
+#     holiday.delete()
+#     return Response({'detail': 'Holiday successfully deleted.'}, status.HTTP_204_NO_CONTENT)
     
-  holidays=HolidayHours.objects.all()
-  serializer=HolidayHoursSerializer(holidays, many=True)
-  return Response(serializer.data)
+#   holidays=HolidayHours.objects.all()
+#   serializer=HolidayHoursSerializer(holidays, many=True)
+#   return Response(serializer.data)
 
-@api_view(['GET', 'PATCH'])
-# @permission_classes([IsAdminUser])
-def store_operations(request):
-  if request.method == "PATCH":
-    serializer=OperationsSerailizer(operations, data=request.data, partial=True)
-    if serializer.is_valid(raise_exception=True):
-      serializer.save()
-      return Response(status.HTTP_202_ACCEPTED)
+# @api_view(['GET', 'PATCH'])
+# # @permission_classes([IsAdminUser])
+# def store_operations(request):
+#   if request.method == "PATCH":
+#     serializer=OperationsSerailizer(operations, data=request.data, partial=True)
+#     if serializer.is_valid(raise_exception=True):
+#       serializer.save()
+#       return Response(status.HTTP_202_ACCEPTED)
 
-  serializer=OperationsSerailizer(operations, many=False)
-  return Response(serializer.data)
+#   serializer=OperationsSerailizer(operations, many=False)
+#   return Response(serializer.data)

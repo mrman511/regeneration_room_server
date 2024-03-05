@@ -1,5 +1,6 @@
 from django.urls import path, include
 from . import views
+from . import admin_views
 
 from rest_framework_simplejwt.views import (
   TokenObtainPairView,
@@ -8,6 +9,8 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
   path('', views.end_points),
+
+  path('user/', views.user),
 
   path('users/', views.users),
   path('users/reset_password/', views.reset_password),
@@ -21,7 +24,7 @@ urlpatterns = [
   path('operating_hours/', views.operating_hours),
 
   # admin routes
-  path('admin/holiday_hours/', views.holiday_hours),
-  path('admin/holiday_hours/<str:pk>/', views.holiday_hours),
-  path('admin/operations/', views.store_operations),
+  path('admin/holiday_hours/', admin_views.holiday_hours),
+  path('admin/holiday_hours/<str:pk>/', admin_views.holiday_hours),
+  path('admin/operations/', admin_views.store_operations),
 ]

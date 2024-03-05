@@ -7,11 +7,11 @@
     - [] - closing_hours
     - [] - days_open
 ## Holidays
-- ### [] - CRUD
-  - [] - Create
-  - [] - Read
-  - [] - Update
-  - [] - Delete
+- ### [X] - CRUD
+  - [X] - Create
+  - [X] - Read
+  - [X] - Update
+  - [X] - Delete
 ## Appointments
 - ### Validation
   - [X] - ensure there are not more appointments for number of chairs per given time slot
